@@ -4,19 +4,27 @@
 	log 4/19 moved userData info to separate class
 	log 4/20 code maintenance
 	log 4/26 created change credentials function
+	log 4/28 make sure change userName doesn't accept already used userName in database.
+	log 4/29 verify passwords before modifying, initialized create account option for admin, started modify accounts function
 */
 
 /*
-  TODO :: Seperate .cpp files for error handling class, encryption, moveANdModify class separate, Access control list, userData doc, and File handling/Log files
-  TODO :: have user and admin, view and change self credentials, and verify password, with passcode(Badge)
-  TODO :: have admin modify all user's
-  TODO :: Create log class and file for tracking everything.
-  TODO :: create error handling class/ polymorphism
-  TODO :: add pointers
+  TODO :: beginner
+  TODO :: have admin modify all user's****
+  TODO :: add/ remove user's
+  TODO :: error handling class****
+  TODO :: Create log class and file for tracking everything
+  TODO :: clean code up
+  TODO :: Flow Chart and PseudoCode(simple login System) ****
+  -----------------------------------------------------------------------------------------
+  TODO :: intermediate
+  TODO :: use basic DataBase(SQL)
+  TODO :: forgot userName/ password system
+  TODO :: some kind of networking concept(get MAC or IP address of Device for verification)
   TODO :: Find out how to encrypt the files data and decrypt in code
-  TODO :: some kind of network security
-  TODO :: Organization/ clean code and separation of .cpp files and classes
-  TODO :: Flow Chart and PseudoCode
+  TODO :: create Visual GUI for frontEnd(QT framework)
+  TODO :: Organization/ clean code and separation of .cpp files and classes ****
+  TODO :: update flowChart and PseudCode (intermediate login System)
 */
 
 
@@ -37,7 +45,7 @@ class UserData
 		std::string passWord;
 		Roles userRole;
 	public:
-
+		//access private
 		UserData(std::string wEmployee, std::string uName, std::string pWord, Roles uRole )
 		{
 			userName = uName;
@@ -53,11 +61,12 @@ class UserData
 		void setName(const std::string &newName) {userName = newName; }
 		void setPass(const std::string &newPass) {passWord = newPass; }
 };
-
+	//class for data base
 class UserDataBase
 {
 	std::vector<UserData> users;
 	public:
+		//move to private?
 		void initializeData()
 		{
 			users.clear();
@@ -70,7 +79,7 @@ class UserDataBase
 			return users;
 		}
 };
-
+//
 class ModifyAndView
 {
 	private:
@@ -100,16 +109,24 @@ class ModifyAndView
 			}
 			std::cout << "-----------------------\n\n";
 		}
-
+		//TODO :: username alphanumerical only, password can have any character(input validation), can't copy any one userName, display if same userName/password
 		void changeCredentials(UserData *currentUser)
 		{
-
 			if (currentUser == nullptr)
 			{
 				std::cout << "No user logged in.\n";
 				return;
 			}
+			std::string confirmPass;
 			char userOption;
+			std::cout << "Enter password to confirm:" << std::endl;
+			std::cin >> confirmPass;
+			if (currentUser->getPass() != confirmPass)
+			{
+				std::cout << "Password confirmation failed!\n";
+				return;
+			}
+
 			std::cout << "Change Username[U] or Password[P]";
 			std::cin >> userOption;
 			if (userOption == 'U')
@@ -117,7 +134,22 @@ class ModifyAndView
 				std::string newUser;
 				std::cout << "Enter new username:";
 				std::cin >> newUser;
+
+				if (newUser == currentUser->getName())
+				{
+					std::cout << "New userName is the same as the current one\n";
+					return;
+				}
+				for (const auto &user : userDataBase-> getUsers())
+				{
+					if (newUser == user.getName())
+					{
+						std::cout << "UserName already exists. Choose a different one.\n";
+						return;
+					}
+				}
 				currentUser->setName(newUser);
+				std::cout << "username changed successfully!\n";
 
 			}
 			else if (userOption == 'P')
@@ -125,14 +157,42 @@ class ModifyAndView
 				std::string newPass;
 				std::cout << "Enter new password:";
 				std::cin >> newPass;
+				if (newPass == currentUser->getName())
+				{
+					std::cout << "New password is the same as the current one\n";
+					return;
+				}
 				currentUser->setPass(newPass);
+				std::cout << "Password changed successfully!\n";
 			}
-
 		}
 
 		void modifyAccounts()
 		{
-			std::cout << "Coming soon\n";
+			std::string employeeName;
+			std::cout << "Choose Employee Account to modify:" << std::endl;
+			auto userList = userDataBase->getUsers();
+			for (const UserData& user : userList)
+				std::cout << "[" << user.getEmployee() << "]" << std::endl;
+			while (true)
+			{
+				std::cin >> employeeName;
+
+				for (const UserData& user : userList)
+				{
+					if (employeeName == user.getEmployee())
+					{
+						std::cout << "Update role Status[U], change Employee Name[E], change userName[U] change password[P] or remove user[R]";
+					}
+					else
+						return;
+				}
+			}
+		}
+		//TODO :: create function definition
+		void createAccount()
+		{
+			std::cout << "Test" << std::endl;
 		}
 };
 
@@ -146,7 +206,10 @@ class SystemLogin
 		UserData* currentUser = nullptr;
 	public:
 
-		SystemLogin() : modifyView(&userDataBase) {}
+		SystemLogin() : modifyView(&userDataBase)
+		{
+			userDataBase.initializeData();
+		}
 
 		void displayAdminScreen()
 		{
@@ -154,22 +217,25 @@ class SystemLogin
 			while (userIn)
 			{
 				char userChoice;
-				std::cout << "Change Credentials[C], Modify Accounts[M], Display Users[D], or Logout[L]\n" << std::endl;
+				std::cout << "Change Credentials[C], Modify Accounts[M], Display Users[D], create User[U] or Logout[L]\n" << std::endl;
 				std::cin >> userChoice;
 				switch (userChoice)
 				{
 					case 'C':
-					std::cout << "Change Account Info chosen!\n";
 					modifyView.changeCredentials(currentUser);
 					break;
 				case 'M':
-					std::cout << "Modify option chosen!\n";
 					modifyView.modifyAccounts();
 					break;
 				case 'D':
 					std::cout << "Displaying Current Employees...\n";
 					modifyView.viewUsers();
 					break;
+				case 'U':
+					std::cout << "coming soon\n";
+					modifyView.createAccount();
+					break;
+
 				case 'L':
 					std::cout << "Logging out...\n\n";
 					userIn = false;
@@ -187,7 +253,7 @@ class SystemLogin
 			while (userIn)
 			{
 				char userChoice;
-				std::cout << "Logout? (L or any other key to ignore)\n";
+				std::cout << "Change Credentials [C] or Logout [L]\n";
 				std::cin >> userChoice;
 				if (userChoice == 'L')
 				{
@@ -195,9 +261,7 @@ class SystemLogin
 					userIn = false;
 				}
 				else if (userChoice == 'C')
-				{
-					continue;
-				}
+					modifyView.changeCredentials(currentUser);
 			}
 			loginScreen();
 		}
@@ -218,7 +282,6 @@ class SystemLogin
 			{
 				std::string inputUser, inputPass;
 				std::cout << "--------------------Login System--------------------\n\n";
-				userDataBase.initializeData();
 				int attempts = 0;
 
 				while (attempts < 3)
@@ -227,24 +290,18 @@ class SystemLogin
 					std::cin >> inputUser;
 					std::cout << "Enter the Password: ";
 					std::cin >> inputPass;
-
 					UserData* matchedUser = checkCredentials(inputUser, inputPass);
 					if (matchedUser != nullptr)
 					{
 						currentUser = matchedUser;
 						if (matchedUser->getRole() == ADMIN)
 						{
-							std::cout << "Admin Logged In\n";
+							std::cout << "Welcome " << matchedUser->getEmployee()  << std::endl;
 							displayAdminScreen();
 						}
-						else if (matchedUser->getRole() == EMPLOYEE)
+						else if (matchedUser->getRole() == EMPLOYEE || matchedUser->getRole() == GUEST)
 						{
-							std::cout << "Employee Logged In\n";
-							displayUsersScreen();
-						}
-						else if (matchedUser->getRole() == GUEST)
-						{
-							std::cout << "Guest Logged In\n";
+							std::cout << "Welcome " << matchedUser->getEmployee()  << std::endl;
 							displayUsersScreen();
 						}
 						return;
