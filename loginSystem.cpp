@@ -6,12 +6,13 @@
 	log 4/26 created change credentials function
 	log 4/28 make sure change userName doesn't accept already used userName in database.
 	log 4/29 verify passwords before modifying, initialized create account option for admin, started modify accounts function
+	log 5/27 created the add user function/ verify employee name and username doesn't conflict with current data
 */
 
 /*
   TODO :: beginner
   TODO :: have admin modify all user's****
-  TODO :: add/ remove user's
+  TODO :: remove user's
   TODO :: error handling class****
   TODO :: Create log class and file for tracking everything
   TODO :: clean code up
@@ -74,7 +75,7 @@ class UserDataBase
 			users.push_back({ "employee1" ,"employee", "123Pass", EMPLOYEE });
 			users.push_back({ "Janitor1", "guestA", "guest123", GUEST });
 		}
-		std::vector<UserData>& getUsers()
+		std::vector<UserData> &getUsers()
 		{
 			return users;
 		}
@@ -193,6 +194,65 @@ class ModifyAndView
 		void createAccount()
 		{
 			std::cout << "Test" << std::endl;
+			std::string createEmployee, createUsername, createPassword;
+			char userChoice;
+
+			bool verifiedCredential = false;
+			while (!verifiedCredential)
+			{
+				std::cout << "Enter new employee name:\n";
+				std::cin >> createEmployee;
+
+				bool exists = false;
+				for (const auto &user : userDataBase->getUsers())
+				{
+					if (createEmployee == user.getEmployee())
+					{
+						std::cout << "Employee already exists.\n";
+						exists = true;
+						break;
+					}
+				}
+				if (!exists)
+					break;
+
+			}
+			verifiedCredential =false;
+			while (!verifiedCredential)
+			{
+				std::cout << "Enter username\n:";
+				std::cin >> createUsername;
+
+				bool exists = false;
+				for (const auto &user : userDataBase-> getUsers())
+				{
+					if (createUsername == user.getName())
+					{
+						std::cout << "Username already exists.\n";
+						exists = true;
+						break;
+					}
+				}
+				if (!exists)
+					break;
+			}
+
+			std::cout << "Enter password\n:";
+			std::cin >> createPassword;
+			std::cout << "Employee(1) or Guest(2)";
+			std::cin >> userChoice;
+			//TODO set user to employee or guest
+			if (userChoice == '1')
+			{
+
+				userDataBase->getUsers().push_back({ createEmployee, createUsername, createPassword, EMPLOYEE });
+			}
+			else if (userChoice == '2')
+			{
+
+				userDataBase->getUsers().push_back({ createEmployee, createUsername, createPassword, GUEST });
+			}
+
 		}
 };
 
