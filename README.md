@@ -1,8 +1,8 @@
-# Authentication System (C++)
+# 🔐 Authentication System (C++)
 
 Terminal-based authentication system written in C++ with a service-oriented design. This project models real-world auth concepts (password hashing, MFA, session management, token generation, role-based authorization, input validation, and audit logging) while keeping the codebase modular and easy to extend.
 
-## Features
+## ✨ Features
 
 - Role-based users: **Admin / Employee / Guest**
 - User records via `UserData` (id, username, password hash, MFA key, role)
@@ -17,12 +17,12 @@ Terminal-based authentication system written in C++ with a service-oriented desi
 - Audit logging (`AuditLogService`): security event tracking (login success/failure, lockouts, etc.)
 - Config (`ConfigService`): centralized security settings (timeouts, max attempts, etc.)
 
-## Tech Stack
+## 🧰 Tech Stack
 
 - **Language:** C++
 - **Concepts:** OOP, service-layer design, hashing/token/session concepts, hash table + linked list collision handling
 
-## Project Structure (logical)
+## 🗂️ Project Structure (logical)
 
 - `UserData` — user identity + credentials (password hash, MFA key, role)
 - `Session` — session record with timestamps and token hash
@@ -36,7 +36,7 @@ Terminal-based authentication system written in C++ with a service-oriented desi
 - `AuditLogService` — audit/security event logger
 - `ConfigService` — security policy configuration
 
-## Setup
+## 🛠️ Setup
 
 ### Build (example)
 ```bash
