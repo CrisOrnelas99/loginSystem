@@ -10,9 +10,10 @@ add_executable(loginSystem
     loginSystem.cpp
     UserData.hpp
     Services/DatabaseService.hpp
-    Services/PasswordService.hpp
-    Services/AuthenticationService.hpp
-    Services/AuthorizationService.hpp
+    Services/AUTH/PasswordService.hpp
+    Services/AUTH/AuthenticationService.hpp
+    Services/AUTH/AuthorizationService.hpp
+    Services/AUTH/ValidationService.hpp
     Services/AuditLogService.hpp
     Services/ConfigService.hpp
     Services/UI/UIService.hpp

@@ -9,34 +9,34 @@
 #include "../UserData.hpp"
 
 
-class DatabaseService   //store user information, uses hash table with linked list for collision
-  {
+class DatabaseService // Stores users in chained hash table.
+{
   public:
-      struct UserNode
+      struct UserNode // Represents one chained user entry.
       {
-          UserData data;
-          UserNode* next;
-          UserNode* previous;
+          UserData data; // Stores user payload.
+          UserNode* next; // Points to next node.
+          UserNode* previous; // Points to previous node.
 
-          UserNode(UserData d) :
+          UserNode(UserData d) : // Creates linked-list node.
               data(d), next(nullptr), previous(nullptr) { }
       };
 
   private:
-      int tableSize;
-      UserNode** buckets;
+      int tableSize; // Tracks total bucket count.
+      UserNode** buckets; // Stores bucket head pointers.
 
-      int hashKey(std::string key) const
+      int hashKey(const std::string& key) const // Hashes username to index.
       {
           int total = 0;
-          for (int index = 0; index < key.length(); index++)
+          for (int index = 0; index < static_cast<int>(key.length()); index++)
               total = total + key[index];
 
           return total % tableSize;
       }
 
   public:
-      DatabaseService(int s) :
+      DatabaseService(int s) : // Initializes bucket array.
           tableSize(s)
       {
           if (tableSize <= 0)
@@ -47,10 +47,10 @@ class DatabaseService   //store user information, uses hash table with linked li
               buckets[index] = nullptr;
       }
 
-      DatabaseService(const DatabaseService&) = delete;
-      DatabaseService& operator=(const DatabaseService&) = delete;
+      DatabaseService(const DatabaseService&) = delete; // Prevents accidental shallow copies.
+      DatabaseService& operator=(const DatabaseService&) = delete; // Prevents accidental assignments.
 
-      void appendUser(const UserData& data)
+      void appendUser(const UserData& data) // Inserts user if absent.
       {
           int bucketIndex = hashKey(data.getName());
 
@@ -77,7 +77,7 @@ class DatabaseService   //store user information, uses hash table with linked li
           appendLocation->next = newNode;
       }
 
-      UserNode* search(const std::string& name)
+      UserNode* search(const std::string& name) // Finds user by username.
       {
           int bucketIndex = hashKey(name);
           UserNode* currentNode = buckets[bucketIndex];
@@ -93,7 +93,7 @@ class DatabaseService   //store user information, uses hash table with linked li
           return nullptr;
       }
 
-      bool deleteUser(const std::string& name)
+      bool deleteUser(const std::string& name) // Deletes user if found.
       {
           UserNode* deleteNode = search(name);
 
@@ -114,7 +114,7 @@ class DatabaseService   //store user information, uses hash table with linked li
           return true;
       }
 
-      ~DatabaseService()
+      ~DatabaseService() // Frees all allocated nodes.
       {
           for (int bucket = 0; bucket < tableSize; bucket++)
           {
@@ -130,7 +130,7 @@ class DatabaseService   //store user information, uses hash table with linked li
           delete[] buckets;
           buckets = nullptr;
       }
-  };
+};
 
 
 #endif // LOGINSYSTEM_DATABASESERVICE_H

@@ -1,27 +1,59 @@
 # Authentication System (C++)
 
-Terminal-based authentication project in C++ using a service-oriented architecture.  
-This README focuses on architecture and directory implementation only.
+Terminal-based authentication project using a service-oriented C++ architecture.
 
-## Architecture
+## Architecture Skeleton
 
-The project is organized around a central controller (`MasterService`) and a set of service modules.
+The system is organized around `MasterService` as the runtime coordinator.
 
-- `MasterService` (in `loginSystem.cpp`): top-level orchestrator that coordinates application flow.
-- `UserData`: core user entity (id, username, password hash, MFA key, role).
-- `DatabaseService`: in-memory hash table with linked-list chaining for collisions.
-- `AuthenticationService`: authentication workflow boundary (currently scaffolded).
-- `AuthorizationService`: role/permission boundary (currently scaffolded).
-- `PasswordService`: password utility boundary (currently scaffolded).
-- `AuditLogService`: audit logging boundary (currently scaffolded).
-- `ConfigService`: configuration/policy boundary (currently scaffolded).
-- UI layer split by role (`AdminUI`, `EmployeeUI`, `GuestUI`) via a shared `UIService` base.
+- `MasterService` (`loginSystem.cpp`)
+  - Owns core services and UI modules.
+  - Controls startup, login flow, role routing, logout, and shutdown.
 
-Current status:
-- `DatabaseService` contains implemented insert/search/delete behavior.
-- Other service headers are intentionally declared as stubs for incremental development.
+- `UserData` (`UserData.hpp`)
+  - Core user entity with id, username, password hash, MFA key, and role.
 
-## Directory Implementation
+- `DatabaseService` (`Services/DatabaseService.hpp`)
+  - Hash table with linked-list chaining.
+  - `appendUser`, `search`, and `deleteUser` are already implemented.
+
+- `AUTH` services (`Services/AUTH/`)
+  - `AuthenticationService.hpp`: auth workflow interface.
+  - `AuthorizationService.hpp`: role/permission interface.
+  - `PasswordService.hpp`: hashing/password policy interface.
+  - `ValidationService.hpp`: user input validation layer.
+
+- Supporting services (`Services/`)
+  - `AuditLogService.hpp`: security/event logging interface.
+  - `ConfigService.hpp`: runtime config and `.env` policy interface.
+
+- UI layer (`Services/UI/`)
+  - `UIService.hpp`: shared UI contract (abstract interface).
+  - `AdminUI.hpp`, `EmployeeUI.hpp`, `GuestUI.hpp`: role-specific UI declarations.
+
+## Runtime Workflow
+
+1. App starts, `MasterService` runs.
+2. Terminal shows login/exit options.
+3. User submits username/password/MFA.
+4. Input is validated.
+5. Authentication succeeds or fails.
+6. On success, user enters role menu flow.
+7. Role actions run with authorization checks.
+8. Events are logged and policy values come from config.
+9. User logs out or exits.
+10. App shuts down cleanly.
+
+## Current State
+
+- Designed for interface-first implementation.
+- Methods are intentionally left undefined in most services.
+- Implemented areas:
+  - `DatabaseService` methods
+  - `ValidationService` input methods
+- Remaining service/UI methods are declared and ready for implementation.
+
+## Directory Layout
 
 ```text
 loginSystem/
@@ -30,11 +62,13 @@ loginSystem/
   CMakeLists.txt
   Services/
     DatabaseService.hpp
-    AuthenticationService.hpp
-    AuthorizationService.hpp
-    PasswordService.hpp
     AuditLogService.hpp
     ConfigService.hpp
+    AUTH/
+      AuthenticationService.hpp
+      AuthorizationService.hpp
+      PasswordService.hpp
+      ValidationService.hpp
     UI/
       UIService.hpp
       AdminUI.hpp
@@ -42,20 +76,8 @@ loginSystem/
       GuestUI.hpp
 ```
 
-### Folder Roles
+## Build
 
-- `loginSystem.cpp`
-  - Entry point (`main`) and `MasterService`.
-  - Includes service interfaces and UI headers.
-
-- `UserData.hpp`
-  - Shared user model and `Role` enum used across services.
-
-- `Services/`
-  - Core service boundaries for authentication system responsibilities.
-  - `DatabaseService.hpp` includes hash table + linked-list node implementation.
-  - Remaining service files are intentionally minimal interfaces/placeholders.
-
-- `Services/UI/`
-  - Presentation layer abstractions and role-specific UI class declarations.
-  - Keeps UI concerns isolated from core service logic.
+```bash
+g++ -std=c++17 loginSystem.cpp -o loginSystem
+```
